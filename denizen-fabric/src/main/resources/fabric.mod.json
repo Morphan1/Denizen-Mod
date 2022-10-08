@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "denizen",
+  "version": "${version}",
+
+  "name": "Denizen",
+  "description": "Denizen Script implementation for Fabric",
+  "authors": [
+    "Morphan1"
+  ],
+  "contact": {
+    "homepage": "https://morphanone.com/denizenfabric",
+    "sources": "https://github.com/Morphan1/Denizen-Fabric"
+  },
+
+  "icon": "assets/denizen/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.morphanone.denizenmod.DenizenFabricMod"
+    ]
+  },
+  "mixins": [
+    "denizen.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.9",
+    "fabric-api": "*",
+    "minecraft": "~1.19",
+    "java": ">=17"
+  },
+  "suggests": {}
+}

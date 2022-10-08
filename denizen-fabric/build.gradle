@@ -1,0 +1,61 @@
+plugins {
+    id "fabric-loom" version "1.0-SNAPSHOT"
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+archivesBaseName = "${project.archives_base_name}-fabric"
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    
+    shade project(":denizen-common")
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    configurations = [ project.configurations.shade ]
+
+    relocate "org.apache.commons", "com.morphanone.denizenmod.shadow.org.apache.commons"
+    relocate "org.json", "com.morphanone.denizenmod.shadow.org.json"
+    relocate "org.yaml.snakeyaml", "com.morphanone.denizenmod.shadow.org.yaml.snakeyaml"
+    relocate "redis.clients.jedis", "com.morphanone.denizenmod.shadow.redis.clients.jedis"
+
+    dependencies {
+        exclude dependency("org.ow2.asm:")
+    }
+
+	//dependencies {
+	//	include(dependency("com.denizenscript:denizencore"))
+	//	include(dependency("org.yaml:snakeyaml"))
+	//}
+	exclude "META-INF/maven/**"
+	//exclude "mappings/mappings.tiny"
+	minimize()
+
+	//dependsOn relocateShadowJar
+}
+
+prepareRemapJar.dependsOn shadowJar
+remapJar.inputFile = shadowJar.archiveFile
+
+java {
+    withSourcesJar()
+}

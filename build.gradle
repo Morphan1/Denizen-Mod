@@ -1,57 +1,24 @@
-plugins {
-    id "fabric-loom" version "1.0-SNAPSHOT"
+allprojects {
+    version = project.mod_version
+    group = project.maven_group
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+subprojects {
+    apply plugin: "java-library"
 
-archivesBaseName = project.archives_base_name
-version = project.mod_version
-group = project.maven_group
-
-repositories {
-    maven {
-        name "Parchment"
-        url "https://maven.parchmentmc.org"
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        it.options.release = 17
     }
-    maven {
-        name "Denizen"
-        url "https://maven.citizensnpcs.co/repo"
-    }
-}
 
-dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
-    }
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_version}")
-
-    api include("com.denizenscript:denizencore:${project.dcore_version}") { changing = true }
-    implementation include("org.yaml:snakeyaml:${project.snakeyaml_version}")
-}
-
-processResources {
-    inputs.property "version", project.version
-    filteringCharset "UTF-8"
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    it.options.release = 17
-}
-
-java {
-    withSourcesJar()
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+    repositories {
+        maven {
+            name "Parchment"
+            url "https://maven.parchmentmc.org"
+        }
+        maven {
+            name "Denizen"
+            url "https://maven.citizensnpcs.co/repo"
+        }
     }
 }
