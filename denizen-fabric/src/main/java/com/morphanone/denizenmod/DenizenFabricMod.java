@@ -215,9 +215,9 @@ public class DenizenFabricMod implements ModInitializer, DenizenImplementation, 
 
     @Override
     public void doFinalDebugOutput(String rawText) {
-        //                                                 This can change slightly, just do our best here
-        //                                                    [HH:mm:ss] [Render thread/INFO] (denizen)
-        DenizenFabricMod.LOGGER.info(rawText.replace("<FORCE_ALIGN>", "                                          "));
+        //                                         This can change slightly, just do our best here
+        //                                            [HH:mm:ss] [Render thread/INFO] (denizen)
+        LOGGER.info(rawText.replace("<FORCE_ALIGN>", "                                          "));
     }
     //endregion
 }
