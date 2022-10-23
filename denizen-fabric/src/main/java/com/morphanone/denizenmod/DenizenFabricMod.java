@@ -20,6 +20,7 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +31,10 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 public class DenizenFabricMod implements ModInitializer, DenizenImplementation, DenizenModImplementation {
     public static final String MOD_ID = "denizen";
@@ -113,6 +116,15 @@ public class DenizenFabricMod implements ModInitializer, DenizenImplementation, 
     @Override
     public Player findPlayerByName(String name) {
         return SERVER.getPlayerList().getPlayerByName(name);
+    }
+
+    @Override
+    public Entity findEntity(UUID uuid) {
+        return StreamSupport.stream(SERVER.getAllLevels().spliterator(), false)
+                .map((level) -> level.getEntity(uuid))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

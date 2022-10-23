@@ -18,6 +18,7 @@ import com.morphanone.denizenmod.tags.TagFactories;
 import com.morphanone.denizenmod.utilities.AnsiChatFormatting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
@@ -30,6 +31,8 @@ public interface DenizenModImplementation extends DenizenImplementation {
     Player findPlayer(UUID uuid);
 
     Player findPlayerByName(String name);
+
+    Entity findEntity(UUID uuid);
 
     CommandSource getMainCommandSource();
 
