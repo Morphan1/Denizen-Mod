@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 
 import java.util.UUID;
 
@@ -52,7 +53,7 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag<E>, E extends
                 return mob.getTarget();
             }
             else if (handle instanceof Player player) {
-                return RayTrace.entities(player.level, player.getEyePosition(), player.getLookAngle(), 50.0, 0.0, null).entity;
+                return RayTrace.any(player.level, player.getEyePosition(), player.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity;
             }
             return null;
         }).map(EntityTags::bestOf).orElse(null));

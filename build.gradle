@@ -20,5 +20,9 @@ subprojects {
             name "Denizen"
             url "https://maven.citizensnpcs.co/repo"
         }
+        maven {
+            name "Sponge Snapshots"
+            url "https://repo.spongepowered.org/repository/maven-public/"
+        }
     }
 }

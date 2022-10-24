@@ -1,7 +1,6 @@
 package com.morphanone.denizenmod;
 
 import com.denizenscript.denizencore.DenizenCore;
-import com.denizenscript.denizencore.DenizenImplementation;
 import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
@@ -31,12 +30,11 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
-public class DenizenFabricMod implements ModInitializer, DenizenImplementation, DenizenModImplementation {
+public class DenizenFabricMod implements ModInitializer, DenizenModImplementation {
     public static final String MOD_ID = "denizen";
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);

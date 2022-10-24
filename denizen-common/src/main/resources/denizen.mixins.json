@@ -4,6 +4,7 @@
   "package": "com.morphanone.denizenmod.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ClipContextMixin"
   ],
   "client": [
   ],
