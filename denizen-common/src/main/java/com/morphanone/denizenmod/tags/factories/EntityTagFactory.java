@@ -5,6 +5,7 @@ import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.morphanone.denizenmod.objects.AbstractEntityTag;
 import com.morphanone.denizenmod.objects.EntityTag;
 import com.morphanone.denizenmod.tags.EntityTags;
@@ -51,9 +52,6 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag<E>, E extends
         register("target", AbstractEntityTag.class, (attribute, entity) -> entity.value().map((handle) -> {
             if (handle instanceof Mob mob) {
                 return mob.getTarget();
-            }
-            else if (handle instanceof Player player) {
-                return RayTrace.any(player.level, player.getEyePosition(), player.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity;
             }
             return null;
         }).map(EntityTags::bestOf).orElse(null));
