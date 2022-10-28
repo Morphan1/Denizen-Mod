@@ -5,9 +5,9 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.debugging.StrongWarning;
 import com.denizenscript.denizencore.utilities.debugging.Warning;
 import com.morphanone.denizenmod.DenizenMod;
-import com.morphanone.denizenmod.objects.AbstractEntityTag;
+import com.morphanone.denizenmod.objects.AnyEntityTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
-import com.morphanone.denizenmod.tags.EntityTags;
+import com.morphanone.denizenmod.tags.TagFactories;
 import com.morphanone.denizenmod.utilities.Context;
 import com.morphanone.denizenmod.utilities.RayTrace;
 import net.minecraft.world.entity.player.Player;
@@ -28,19 +28,6 @@ public class PlayerTagFactory extends EntityTagFactory<PlayerTag, Player> {
     @Override
     public String objectIdentifier() {
         return "p";
-    }
-
-    @Override
-    public String defaultArgPrefix() {
-        return "Player";
-    }
-
-    @Override
-    public void registerTags() {
-        super.registerTags();
-        register("target", AbstractEntityTag.class, (attribute, player) -> player.value().map((handle) ->
-            RayTrace.any(handle.level, handle.getEyePosition(), handle.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity
-        ).map(EntityTags::bestOf).orElse(null));
     }
 
     @Override

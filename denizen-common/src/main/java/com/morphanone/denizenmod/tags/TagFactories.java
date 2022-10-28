@@ -2,13 +2,14 @@ package com.morphanone.denizenmod.tags;
 
 import com.denizenscript.denizencore.objects.Adjustable;
 import com.denizenscript.denizencore.objects.ObjectFetcher;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.ObjectType;
 import com.denizenscript.denizencore.tags.CoreObjectTags;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.DebugInternals;
-import com.morphanone.denizenmod.objects.AbstractObjectTag;
+import com.morphanone.denizenmod.objects.AnyEntityTag;
 import com.morphanone.denizenmod.objects.EntityTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
 import com.morphanone.denizenmod.tags.factories.EntityTagFactory;
@@ -22,9 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TagFactories {
-    public static final Map<Class<? extends AbstractObjectTag>, ObjectTagFactory<?>> BY_OBJECT_TYPE = new HashMap<>();
+    public static final Map<Class<? extends ObjectTag>, ObjectTagFactory<?>> BY_OBJECT_TYPE = new HashMap<>();
 
-    public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Base());
+    public static ObjectReferenceTagFactory<AnyEntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Any());
+
+    public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY_BASE = registerTagFactory(new EntityTagFactory.Base());
 
     public static ObjectReferenceTagFactory<PlayerTag, Player> PLAYER = registerTagFactory(new PlayerTagFactory());
 
@@ -32,14 +35,14 @@ public class TagFactories {
         return PLAYER;
     }
 
-    public static <T extends AbstractObjectTag> void registerWithObjectFetcher(ObjectTagFactory<T> baseTag, String shortName, String longName) {
-        Class<T> objectTag = baseTag.tagClass;
-        ObjectTagProcessor<T> processor = baseTag.tagProcessor;
+    public static <T extends ObjectTag> void registerWithObjectFetcher(ObjectTagFactory<T> factory, String shortName, String longName) {
+        Class<T> objectTag = factory.tagClass;
+        ObjectTagProcessor<T> processor = factory.tagProcessor;
         ObjectType<T> newType = new ObjectType<>();
         newType.clazz = objectTag;
         if (processor != null) {
             processor.type = objectTag;
-            if (baseTag.isReal()) {
+            if (factory.isReal()) {
                 CoreObjectTags.generateCoreTags(processor);
             }
             newType.tagProcessor = processor;
@@ -47,15 +50,16 @@ public class TagFactories {
         newType.longName = longName;
         newType.shortName = shortName;
         newType.isAdjustable = Adjustable.class.isAssignableFrom(objectTag);
+        factory.objectType = newType;
         ObjectFetcher.objectsByClass.put(objectTag, newType);
         String identifier;
         ObjectType.MatchesInterface matches;
         ObjectType.ValueOfInterface<T> valueOf;
-        identifier = baseTag.objectIdentifier();
-        matches = baseTag::matches;
-        valueOf = baseTag::valueOf;
-        baseTag.registerTags();
-        if (baseTag.isReal()) {
+        identifier = factory.objectIdentifier();
+        matches = factory::matches;
+        valueOf = factory::valueOf;
+        factory.registerTags();
+        if (factory.isReal()) {
             ObjectFetcher.realObjectClassSet.add(objectTag);
             ObjectFetcher.objectsByPrefix.put(CoreUtilities.toLowerCase(identifier.trim()), newType);
             ObjectFetcher.objectsByName.put(CoreUtilities.toLowerCase(longName), newType);
@@ -63,39 +67,41 @@ public class TagFactories {
                 ObjectFetcher.objectsByName.put(CoreUtilities.toLowerCase(shortName), newType);
             }
             newType.prefix = identifier;
-            BY_OBJECT_TYPE.put(objectTag, baseTag);
+            BY_OBJECT_TYPE.put(objectTag, factory);
         }
         newType.matches = matches;
         newType.valueOf = valueOf;
     }
 
-    public static <T extends AbstractObjectTag> void registerWithObjectFetcher(ObjectTagFactory<T> tagBase) {
-        String longName = DebugInternals.getClassNameOpti(tagBase.tagClass);
+    public static <T extends ObjectTag> void registerWithObjectFetcher(ObjectTagFactory<T> factory) {
+        String longName = DebugInternals.getClassNameOpti(factory.tagClass);
         String shortName = null;
         if (longName.endsWith("Tag")) {
             shortName = longName.substring(0, longName.length() - "Tag".length());
         }
-        registerWithObjectFetcher(tagBase, shortName, longName);
+        registerWithObjectFetcher(factory, shortName, longName);
     }
 
-    public static <T extends AbstractObjectTag> void registerWithTagManager(ObjectTagFactory<T> tagBase, boolean isStatic) {
-        TagManager.internalRegisterTagHandler(tagBase.tagClass, tagBase.name(), tagBase::handleAttribute, isStatic);
+    public static <T extends ObjectTag> void registerWithTagManager(ObjectTagFactory<T> factory, boolean isStatic) {
+        TagManager.internalRegisterTagHandler(factory.tagClass, factory.name(), factory::handleAttribute, isStatic);
     }
 
-    public static <T extends AbstractObjectTag, F extends ObjectTagFactory<T>> F registerTagFactory(F factory, boolean isStatic) {
+    public static <T extends ObjectTag, F extends ObjectTagFactory<T>> F registerTagFactory(F factory, boolean isStatic) {
         registerWithObjectFetcher(factory);
-        registerWithTagManager(factory, isStatic);
-        if (factory instanceof EntityTagFactory<?, ?> entityTagFactory) {
-            EntityTags.register(entityTagFactory);
+        if (factory.name() != null) {
+            registerWithTagManager(factory, isStatic);
+        }
+        if (factory instanceof EntityTagFactory<?, ?> entityTagFactory && !(entityTagFactory instanceof EntityTagFactory.Any)) {
+            EntityTagFactory.Any.registerFactory(entityTagFactory);
         }
         return factory;
     }
 
-    public static <T extends AbstractObjectTag, F extends ObjectTagFactory<T>> F registerTagFactory(F factory) {
+    public static <T extends ObjectTag, F extends ObjectTagFactory<T>> F registerTagFactory(F factory) {
         return registerTagFactory(factory, false);
     }
 
-    public static <T extends AbstractObjectTag, F extends ObjectTagFactory<T>> F registerStaticTagFactory(F factory) {
+    public static <T extends ObjectTag, F extends ObjectTagFactory<T>> F registerStaticTagFactory(F factory) {
         return registerTagFactory(factory, true);
     }
 }
