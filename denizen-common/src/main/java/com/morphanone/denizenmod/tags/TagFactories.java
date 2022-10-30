@@ -9,25 +9,29 @@ import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.DebugInternals;
-import com.morphanone.denizenmod.objects.AnyEntityTag;
+import com.morphanone.denizenmod.objects.AbstractEntityTag;
 import com.morphanone.denizenmod.objects.EntityTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
 import com.morphanone.denizenmod.tags.factories.EntityTagFactory;
 import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagFactory;
+import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagMetafactory;
 import com.morphanone.denizenmod.tags.factories.ObjectTagFactory;
 import com.morphanone.denizenmod.tags.factories.PlayerTagFactory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TagFactories {
+    public static final Map<Class<? extends ObjectTag>, ObjectReferenceTagMetafactory<?, ?>> METAFACTORIES = new HashMap<>();
+
     public static final Map<Class<? extends ObjectTag>, ObjectTagFactory<?>> BY_OBJECT_TYPE = new HashMap<>();
 
-    public static ObjectReferenceTagFactory<AnyEntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Any());
+    public static ObjectReferenceTagMetafactory<AbstractEntityTag, Entity> ENTITY_ANY = registerMetafactory(new ObjectReferenceTagMetafactory<>(AbstractEntityTag.class, Entity.class));
 
-    public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY_BASE = registerTagFactory(new EntityTagFactory.Base());
+    public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Entity());
 
     public static ObjectReferenceTagFactory<PlayerTag, Player> PLAYER = registerTagFactory(new PlayerTagFactory());
 
@@ -86,14 +90,25 @@ public class TagFactories {
         TagManager.internalRegisterTagHandler(factory.tagClass, factory.name(), factory::handleAttribute, isStatic);
     }
 
+    public static <T extends ObjectTag, R, F extends ObjectReferenceTagMetafactory<T, R>> F registerMetafactory(F metafactory) {
+        METAFACTORIES.put(metafactory.tagClass, metafactory);
+        return metafactory;
+    }
+
+    public static List<? extends ObjectReferenceTagMetafactory<?, ?>> getMetafactories(Class<? extends ObjectTag> subclass) {
+        return METAFACTORIES.entrySet().stream().filter((entry) -> entry.getKey().isAssignableFrom(subclass)).map(Map.Entry::getValue).toList();
+    }
+
     public static <T extends ObjectTag, F extends ObjectTagFactory<T>> F registerTagFactory(F factory, boolean isStatic) {
         registerWithObjectFetcher(factory);
         if (factory.name() != null) {
             registerWithTagManager(factory, isStatic);
         }
-        if (factory instanceof EntityTagFactory<?, ?> entityTagFactory && !(entityTagFactory instanceof EntityTagFactory.Any)) {
-            EntityTagFactory.Any.registerFactory(entityTagFactory);
+        List<? extends ObjectReferenceTagMetafactory<?, ?>> metafactories = getMetafactories(factory.tagClass);
+        if (metafactories.size() > 0 && !(factory instanceof ObjectReferenceTagFactory<?, ?>)) {
+            throw new ClassCastException("Factory for " + factory.tagClass.getName() + " (" + factory.getClass().getName() + ") does not extend ObjectReferenceTagFactory");
         }
+        metafactories.forEach((metafactory) -> metafactory.register((ObjectReferenceTagFactory<?, ?>) factory));
         return factory;
     }
 

@@ -1,6 +1,7 @@
 package com.morphanone.denizenmod.tags.factories;
 
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.utilities.debugging.Debug;
 
 public abstract class ObjectReferenceTagFactory<T extends ObjectTag, R> extends ObjectTagFactory<T> {
     public Class<R> referenceClass;

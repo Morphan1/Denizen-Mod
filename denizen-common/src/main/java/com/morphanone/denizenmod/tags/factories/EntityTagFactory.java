@@ -4,16 +4,13 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import com.morphanone.denizenmod.objects.AnyEntityTag;
+import com.morphanone.denizenmod.objects.AbstractEntityTag;
 import com.morphanone.denizenmod.objects.EntityTag;
 import net.minecraft.world.entity.Entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-public abstract class EntityTagFactory<T extends AnyEntityTag, E extends Entity> extends ObjectReferenceTagFactory<T, E> {
+public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends Entity> extends ObjectReferenceTagFactory<T, E> {
     public EntityTagFactory(Class<T> tagClass, Class<E> entityClass) {
         super(tagClass, entityClass);
     }
@@ -25,13 +22,6 @@ public abstract class EntityTagFactory<T extends AnyEntityTag, E extends Entity>
     @Override
     public void registerTags() {
         super.registerTags();
-        /*register("name", ElementTag.class, (attribute, entity) -> entity.value().map(Entity::getName).map(Component::getString).map(ElementTag::new).orElse(null));
-        register("target", AnyEntityTag.class, (attribute, entity) -> entity.value().map((handle) -> {
-            if (handle instanceof Mob mob) {
-                return mob.getTarget();
-            }
-            return null;
-        }).map(TagFactories.ENTITY_ANY::of).orElse(null));*/
     }
 
     @Override
@@ -75,47 +65,9 @@ public abstract class EntityTagFactory<T extends AnyEntityTag, E extends Entity>
 
     public abstract T from(UUID uuid);
 
-    public static class Any extends EntityTagFactory<AnyEntityTag, Entity> {
-        public static final List<EntityTagFactory<? extends AnyEntityTag, ? extends Entity>> FACTORIES = new ArrayList<>();
-
-        public static void registerFactory(EntityTagFactory<?, ?> tagFactory) {
-            FACTORIES.add(0, tagFactory);
-        }
-
-        public Any() {
-            super(AnyEntityTag.class, Entity.class);
-        }
-
-        @Override
-        public String name() {
-            return "entity";
-        }
-
-        @Override
-        public String objectIdentifier() {
-            return null;
-        }
-
-        @Override
-        public AnyEntityTag from(UUID uuid) {
-            return new EntityTag(uuid).value().map(this::of).orElse(null);
-        }
-
-        @Override
-        public AnyEntityTag of(Entity entity) {
-            if (entity == null) {
-                return null;
-            }
-            return FACTORIES.stream().map((factory) -> (AnyEntityTag) factory.tryOf(entity))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElseThrow();
-        }
-    }
-
-    public static class Base extends EntityTagFactory<EntityTag, Entity> {
-        public Base() {
-            super(EntityTag.class, Entity.class);
+    public static class Entity extends EntityTagFactory<EntityTag, net.minecraft.world.entity.Entity> {
+        public Entity() {
+            super(EntityTag.class, net.minecraft.world.entity.Entity.class);
         }
 
         @Override
@@ -124,13 +76,13 @@ public abstract class EntityTagFactory<T extends AnyEntityTag, E extends Entity>
         }
 
         @Override
-        public EntityTag of(Entity entity) {
+        public EntityTag of(net.minecraft.world.entity.Entity entity) {
             return new EntityTag(entity);
         }
 
         @Override
         public String name() {
-            return null;
+            return "entity";
         }
 
         @Override

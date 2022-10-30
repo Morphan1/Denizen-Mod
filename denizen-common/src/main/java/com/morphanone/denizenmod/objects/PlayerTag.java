@@ -11,7 +11,7 @@ import net.minecraft.world.level.ClipContext;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerTag extends AbstractEntityTag<Player> {
+public class PlayerTag extends AbstractEntityTag {
     public PlayerTag(UUID uuid) {
         super(uuid);
     }
@@ -26,14 +26,14 @@ public class PlayerTag extends AbstractEntityTag<Player> {
     }
 
     @Override
-    public AnyEntityTag targetTag() {
+    public AbstractEntityTag targetTag() {
         return value().map((handle) ->
                 RayTrace.any(handle.level, handle.getEyePosition(), handle.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity
-        ).map(TagFactories.ENTITY::of).orElse(null);
+        ).map(TagFactories.ENTITY_ANY::of).orElse(null);
     }
 
     @Tag("self") // this is mostly for testing purposes
-    public AnyEntityTag selfTag() {
+    public AbstractEntityTag selfTag() {
         return this;
     }
 }

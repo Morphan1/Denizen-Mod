@@ -1,8 +1,12 @@
 package com.morphanone.denizenmod.objects;
 
 import com.denizenscript.denizencore.objects.ObjectTag;
+import com.denizenscript.denizencore.objects.ObjectType;
 import com.denizenscript.denizencore.tags.Attribute;
+import com.denizenscript.denizencore.tags.TagContext;
 import com.morphanone.denizenmod.tags.TagFactories;
+import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagFactory;
+import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagMetafactory;
 import com.morphanone.denizenmod.tags.factories.ObjectTagFactory;
 
 public abstract class AbstractObjectTag implements ObjectTag {

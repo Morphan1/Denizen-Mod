@@ -5,13 +5,9 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.debugging.StrongWarning;
 import com.denizenscript.denizencore.utilities.debugging.Warning;
 import com.morphanone.denizenmod.DenizenMod;
-import com.morphanone.denizenmod.objects.AnyEntityTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
-import com.morphanone.denizenmod.tags.TagFactories;
 import com.morphanone.denizenmod.utilities.Context;
-import com.morphanone.denizenmod.utilities.RayTrace;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ClipContext;
 
 import java.util.UUID;
 
