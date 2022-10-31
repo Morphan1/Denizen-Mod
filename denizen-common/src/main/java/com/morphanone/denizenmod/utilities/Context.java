@@ -4,9 +4,7 @@ import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.morphanone.denizenmod.objects.PlayerTag;
 import com.morphanone.denizenmod.tags.CommonTagContext;
-import net.minecraft.commands.CommandSource;
 
-import java.util.Objects;
 import java.util.Optional;
 
 public class Context {

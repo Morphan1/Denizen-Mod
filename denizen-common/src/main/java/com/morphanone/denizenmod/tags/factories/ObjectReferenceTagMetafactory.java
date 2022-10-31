@@ -1,9 +1,7 @@
 package com.morphanone.denizenmod.tags.factories;
 
-import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
-import com.morphanone.denizenmod.DenizenMod;
 
 import java.util.ArrayList;
 import java.util.List;
