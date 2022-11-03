@@ -47,7 +47,7 @@ public class PlayerTagFactory extends EntityTagFactory<PlayerTag, Player> {
             if (context.script != null) {
                 ILLEGAL_PLAYER_BY_NAME.warn(context);
             }
-            return new PlayerTag(byName.getUUID());
+            return from(byName.getUUID());
         }
         return null;
     }

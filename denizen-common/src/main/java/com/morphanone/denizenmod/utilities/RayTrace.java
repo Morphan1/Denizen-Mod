@@ -40,6 +40,7 @@ public class RayTrace {
     public static Result blocks(Level level, Vec3 start, Vec3 direction, double distance, boolean ignoreNonColliding, ClipContext.Fluid fluidCollision) {
         Vec3 scaledDirection = direction.normalize().scale(distance);
         Vec3 end = start.add(scaledDirection);
+        @SuppressWarnings("ConstantConditions") // NonNull final parameter patched out with ClipContextMixin
         BlockHitResult nmsResult = level.clip(new ClipContext(start, end, ignoreNonColliding ? ClipContext.Block.COLLIDER : ClipContext.Block.OUTLINE, fluidCollision, null));
         return new Result(nmsResult.getBlockPos(), nmsResult.getLocation());
     }

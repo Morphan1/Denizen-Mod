@@ -1,5 +1,6 @@
 package com.morphanone.denizenmod.tags;
 
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ScriptTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.ScriptEntryData;
@@ -23,7 +24,7 @@ public class CommonTagContext extends TagContext {
         return new CommonScriptEntryData(this);
     }
 
-    private static <T> String format(T object, Function<T, String> getIdentifier) {
+    private static <T extends ObjectTag> String format(T object, Function<T, String> getIdentifier) {
         if (object != null) {
             String identifier = getIdentifier.apply(object);
             if (identifier != null) {
@@ -36,7 +37,7 @@ public class CommonTagContext extends TagContext {
     @Override
     public String toString() {
         return '[' +
-                "player=" + format(player, PlayerTag::getRawNameString) +
+                "player=" + player.rawSimpleIdentity() +
                 ']';
     }
 

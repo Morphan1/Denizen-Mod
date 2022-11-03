@@ -29,6 +29,7 @@ public class ObjectReferenceTagMetafactory<T extends ObjectTag, R> {
             return;
         }
         factories.add(0, factory);
+        factory.metafactory = this;
     }
 
     public ObjectReferenceTagFactory<?, ?> getFactory(Class<? extends ObjectTag> factoryTagClass) {

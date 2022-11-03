@@ -18,8 +18,10 @@ import com.morphanone.denizenmod.tags.TagFactories;
 import com.morphanone.denizenmod.utilities.AnsiChatFormatting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSource;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.Objects;
 import java.util.Set;
@@ -33,6 +35,8 @@ public interface DenizenModImplementation extends DenizenImplementation {
     Player findPlayerByName(String name);
 
     Entity findEntity(UUID uuid);
+
+    Level getLevel(ResourceKey<Level> dimension);
 
     CommandSource getMainCommandSource();
 

@@ -29,22 +29,14 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
         return null;
     }
 
-    private final String fullIdentifier = objectIdentifier() + "@";
-
-    public T fromIdentity(String input) {
-        if (input == null) {
-            return null;
-        }
-        input = CoreUtilities.toLowerCase(input);
-        if (input.startsWith(fullIdentifier)) {
-            input = input.substring(fullIdentifier.length());
-        }
+    @SuppressWarnings("unchecked")
+    public E fromIdentity(String input) {
         if (input.length() == 36 && CoreUtilities.contains(input, '-')) {
             try {
                 UUID uuid = UUID.fromString(input);
                 T byUUID = from(uuid);
-                if (byUUID != null && byUUID.value().isPresent()) {
-                    return byUUID;
+                if (byUUID != null) {
+                    return (E) byUUID.value().orElse(null);
                 }
             }
             catch (IllegalArgumentException ignored) {
@@ -55,7 +47,7 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
 
     @Override
     public T valueOf(String input, TagContext context) {
-        return fromIdentity(input);
+        return of(fromIdentity(input));
     }
 
     @Override
@@ -77,7 +69,7 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
 
         @Override
         public EntityTag of(net.minecraft.world.entity.Entity entity) {
-            return new EntityTag(entity);
+            return entity != null ? new EntityTag(entity) : null;
         }
 
         @Override

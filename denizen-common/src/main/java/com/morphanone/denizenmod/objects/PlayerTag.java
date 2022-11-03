@@ -27,8 +27,8 @@ public class PlayerTag extends AbstractEntityTag {
 
     @Override
     public AbstractEntityTag targetTag() {
-        return value().map((handle) ->
-                RayTrace.any(handle.level, handle.getEyePosition(), handle.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity
+        return value().map((player) ->
+                RayTrace.any(player.level, player.getEyePosition(), player.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity
         ).map(TagFactories.ENTITY_ANY::of).orElse(null);
     }
 

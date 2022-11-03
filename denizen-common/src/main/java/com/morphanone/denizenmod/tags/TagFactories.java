@@ -11,14 +11,19 @@ import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.DebugInternals;
 import com.morphanone.denizenmod.objects.AbstractEntityTag;
 import com.morphanone.denizenmod.objects.EntityTag;
+import com.morphanone.denizenmod.objects.LocationTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
+import com.morphanone.denizenmod.objects.WorldTag;
 import com.morphanone.denizenmod.tags.factories.EntityTagFactory;
+import com.morphanone.denizenmod.tags.factories.LocationTagFactory;
 import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagFactory;
 import com.morphanone.denizenmod.tags.factories.ObjectReferenceTagMetafactory;
 import com.morphanone.denizenmod.tags.factories.ObjectTagFactory;
 import com.morphanone.denizenmod.tags.factories.PlayerTagFactory;
+import com.morphanone.denizenmod.tags.factories.WorldTagFactory;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +39,10 @@ public class TagFactories {
     public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Entity());
 
     public static ObjectReferenceTagFactory<PlayerTag, Player> PLAYER = registerTagFactory(new PlayerTagFactory());
+
+    public static ObjectReferenceTagFactory<WorldTag, Level> WORLD = registerTagFactory(new WorldTagFactory());
+
+    public static ObjectTagFactory<LocationTag> LOCATION = registerTagFactory(new LocationTagFactory());
 
     public static ObjectTagFactory<?> bootstrap() {
         return PLAYER;
@@ -60,8 +69,8 @@ public class TagFactories {
         ObjectType.MatchesInterface matches;
         ObjectType.ValueOfInterface<T> valueOf;
         identifier = factory.objectIdentifier();
-        matches = factory::matches;
-        valueOf = factory::valueOf;
+        matches = factory::cleanMatches;
+        valueOf = factory::cleanValueOf;
         factory.registerTags();
         if (factory.isReal()) {
             ObjectFetcher.realObjectClassSet.add(objectTag);
