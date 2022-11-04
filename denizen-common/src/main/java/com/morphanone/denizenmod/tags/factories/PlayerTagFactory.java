@@ -59,6 +59,6 @@ public class PlayerTagFactory extends EntityTagFactory<PlayerTag, Player> {
 
     @Override
     public PlayerTag of(Player player) {
-        return player != null ? new PlayerTag(player.getUUID()) : null;
+        return player != null ? new PlayerTag(player) : null;
     }
 }

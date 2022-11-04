@@ -1,8 +1,8 @@
 package com.morphanone.denizenmod.objects;
 
 import com.morphanone.denizenmod.DenizenMod;
-import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.tags.TagFactories;
+import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.utilities.RayTrace;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -28,7 +28,14 @@ public class PlayerTag extends AbstractEntityTag {
 
     @Override
     public Optional<Player> value() {
-        return Optional.ofNullable(DenizenMod.instance.findPlayer(uuid));
+        Player player = this.player.get();
+        if (player == null) {
+            player = DenizenMod.instance.findPlayer(uuid);
+            if (player != null) {
+                this.player = new WeakReference<>(player);
+            }
+        }
+        return Optional.ofNullable(player);
     }
 
     public void sendSystemMessage(String message) {
