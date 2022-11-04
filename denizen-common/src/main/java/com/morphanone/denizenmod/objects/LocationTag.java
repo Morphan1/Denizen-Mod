@@ -1,6 +1,5 @@
 package com.morphanone.denizenmod.objects;
 
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.morphanone.denizenmod.tags.annotations.GenerateTag;
 import com.morphanone.denizenmod.tags.annotations.OptionalType;
@@ -37,16 +36,25 @@ public class LocationTag extends AbstractObjectTag {
         this.world = world;
     }
 
+    /**
+     * {@return the X coordinate}
+     */
     @GenerateTag
     public double x() {
         return position.x();
     }
 
+    /**
+     * {@return the Y coordinate}
+     */
     @GenerateTag
     public double y() {
         return position.y();
     }
 
+    /**
+     * {@return the Z coordinate}
+     */
     @GenerateTag
     public double z() {
         return position.z();
@@ -56,11 +64,17 @@ public class LocationTag extends AbstractObjectTag {
         return Optional.ofNullable(pitchYaw);
     }
 
+    /**
+     * {@return the pitch value, if any}
+     */
     @GenerateTag
     public OptionalFloat pitch() {
         return pitchYaw != null ? OptionalFloat.of(pitchYaw.x) : OptionalFloat.empty();
     }
 
+    /**
+     * {@return the yaw value, if any}
+     */
     @GenerateTag
     public OptionalFloat yaw() {
         return pitchYaw != null ? OptionalFloat.of(pitchYaw.y) : OptionalFloat.empty();
@@ -78,12 +92,19 @@ public class LocationTag extends AbstractObjectTag {
         return Mth.floor(z());
     }
 
+    /**
+     * {@return the world}
+     */
     @Tag
     @OptionalType(WorldTag.class)
     public Optional<WorldTag> world() {
         return Optional.ofNullable(world);
     }
 
+    /**
+     * {@return the location in simple format: X,Y,Z,world}
+     */
+    @GenerateTag("simple")
     @Override
     public String rawSimpleIdentity() {
         String blockPos = blockX() + "," + blockY() + "," + blockZ();
@@ -103,10 +124,5 @@ public class LocationTag extends AbstractObjectTag {
             pos += "," + world.rawSimpleIdentity();
         }
         return pos;
-    }
-
-    @Tag
-    public ElementTag simpleTag() {
-        return new ElementTag(rawSimpleIdentity());
     }
 }

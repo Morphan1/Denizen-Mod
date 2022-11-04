@@ -1,8 +1,10 @@
 package com.morphanone.denizenmod.objects;
 
-import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.tags.TagFactories;
+import com.morphanone.denizenmod.tags.annotations.GenerateTag;
+import com.morphanone.denizenmod.tags.annotations.OptionalType;
+import com.morphanone.denizenmod.tags.annotations.Tag;
+import com.morphanone.denizenmod.utilities.OptionalFloat;
 import com.morphanone.denizenmod.utilities.RayTrace;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -34,20 +36,42 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         return getName().map(Component::getString);
     }
 
+    /**
+     * {@return the entity's custom name if set, otherwise its translated type}
+     */
+    @GenerateTag("name")
     public String getRawNameString() {
         return getNameString().orElse(null);
     }
 
-    @Tag
-    public ElementTag nameTag() {
-        return getNameString().map(ElementTag::new).orElse(null);
+    /**
+     * {@return the distance between the entity's base location to their eyes, or 0 if it has no eyes}
+     */
+    @GenerateTag
+    public OptionalFloat eyeHeight() {
+        return value().map((entity) -> OptionalFloat.of(entity.getEyeHeight())).orElse(OptionalFloat.empty());
     }
 
+    /**
+     * {@return the current world the entity is in}
+     */
+    @Tag
+    @OptionalType(WorldTag.class)
+    public Optional<WorldTag> world() {
+        return value().map(Entity::getLevel).map(TagFactories.WORLD::of);
+    }
+
+    /**
+     * {@return the entity's current attack target, if the entity is a hostile mob}
+     */
     @Tag
     public AbstractEntityTag targetTag() {
         return value().map((entity) -> entity instanceof Mob mob ? TagFactories.ENTITY_ANY.of(mob) : null).orElse(null);
     }
 
+    /**
+     * {@return the current location the entity is standing at}
+     */
     @Tag
     public LocationTag locationTag() {
         return value().map((entity) -> new LocationTag(
@@ -57,6 +81,9 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         )).orElse(null);
     }
 
+    /**
+     * {@return the current location of the entity's eyes, or {@link #locationTag} if it has no eyes}
+     */
     @Tag
     public LocationTag eyeLocationTag() {
         return value().map((entity) -> new LocationTag(
@@ -66,6 +93,9 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         )).orElse(null);
     }
 
+    /**
+     * {@return the block the entity is looking at, }
+     */
     @Tag
     public LocationTag cursorOnTag() {
         return value().map((entity) -> new LocationTag(

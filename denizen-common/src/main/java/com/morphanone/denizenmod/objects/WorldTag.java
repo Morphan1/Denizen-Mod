@@ -44,13 +44,16 @@ public class WorldTag extends AbstractObjectTag implements ObjectReferenceTag<Le
         return Optional.ofNullable(level);
     }
 
-    @GenerateTag
-    public String name() {
-        return dimension.location().toString();
-    }
-
     @Override
     public String rawSimpleIdentity() {
         return name();
+    }
+
+    /**
+     * {@return the dimension identifier, for example "minecraft:overworld"}
+     */
+    @GenerateTag
+    public String name() {
+        return dimension.location().toString();
     }
 }
