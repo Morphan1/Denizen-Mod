@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class EntityTag extends AbstractEntityTag {
-    public Entity handle;
+    public Entity entity;
 
     public EntityTag(UUID uuid) {
         super(uuid);
@@ -15,14 +15,14 @@ public class EntityTag extends AbstractEntityTag {
 
     public EntityTag(Entity entity) {
         this(entity.getUUID());
-        this.handle = entity;
+        this.entity = entity;
     }
 
     @Override
     public Optional<Entity> value() {
-        if (handle == null) {
-            handle = DenizenMod.instance.findEntity(uuid);
+        if (entity == null) {
+            entity = DenizenMod.instance.findEntity(uuid);
         }
-        return Optional.ofNullable(handle);
+        return Optional.ofNullable(entity);
     }
 }

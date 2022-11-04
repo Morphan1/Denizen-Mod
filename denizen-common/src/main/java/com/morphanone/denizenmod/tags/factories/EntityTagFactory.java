@@ -29,14 +29,13 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public E fromIdentity(String input) {
+    public T fromIdentity(String input) {
         if (input.length() == 36 && CoreUtilities.contains(input, '-')) {
             try {
                 UUID uuid = UUID.fromString(input);
                 T byUUID = from(uuid);
-                if (byUUID != null) {
-                    return (E) byUUID.value().orElse(null);
+                if (byUUID.value().isPresent()) {
+                    return byUUID;
                 }
             }
             catch (IllegalArgumentException ignored) {
@@ -47,7 +46,7 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
 
     @Override
     public T valueOf(String input, TagContext context) {
-        return of(fromIdentity(input));
+        return fromIdentity(input);
     }
 
     @Override

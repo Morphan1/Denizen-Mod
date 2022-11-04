@@ -1,7 +1,7 @@
 package com.morphanone.denizenmod.objects;
 
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import com.morphanone.denizenmod.tags.Tag;
+import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.tags.TagFactories;
 import com.morphanone.denizenmod.utilities.RayTrace;
 import net.minecraft.network.chat.Component;
@@ -38,17 +38,17 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         return getNameString().orElse(null);
     }
 
-    @Tag("name")
+    @Tag
     public ElementTag nameTag() {
         return getNameString().map(ElementTag::new).orElse(null);
     }
 
-    @Tag("target")
+    @Tag
     public AbstractEntityTag targetTag() {
         return value().map((entity) -> entity instanceof Mob mob ? TagFactories.ENTITY_ANY.of(mob) : null).orElse(null);
     }
 
-    @Tag("location")
+    @Tag
     public LocationTag locationTag() {
         return value().map((entity) -> new LocationTag(
                 entity.position(),
@@ -57,7 +57,7 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         )).orElse(null);
     }
 
-    @Tag("eye_location")
+    @Tag
     public LocationTag eyeLocationTag() {
         return value().map((entity) -> new LocationTag(
                 entity.getEyePosition(),
@@ -66,7 +66,7 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
         )).orElse(null);
     }
 
-    @Tag("cursor_on")
+    @Tag
     public LocationTag cursorOnTag() {
         return value().map((entity) -> new LocationTag(
                 Vec3.atLowerCornerOf(

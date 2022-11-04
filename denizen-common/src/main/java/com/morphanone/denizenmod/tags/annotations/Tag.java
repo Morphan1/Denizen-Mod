@@ -1,4 +1,4 @@
-package com.morphanone.denizenmod.tags;
+package com.morphanone.denizenmod.tags.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Tag {
-    String value();
+    String[] value() default {};
 }

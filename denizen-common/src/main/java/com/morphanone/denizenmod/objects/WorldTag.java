@@ -1,8 +1,7 @@
 package com.morphanone.denizenmod.objects;
 
-import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.morphanone.denizenmod.DenizenMod;
-import com.morphanone.denizenmod.tags.Tag;
+import com.morphanone.denizenmod.tags.annotations.GenerateTag;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +16,11 @@ public class WorldTag extends AbstractObjectTag implements ObjectReferenceTag<Le
 
     public ResourceKey<Level> dimension;
 
+    public WorldTag(ResourceKey<Level> dimension) {
+        this.level = new WeakReference<>(null);
+        this.dimension = dimension;
+    }
+
     public WorldTag(Level level) {
         this.level = new WeakReference<>(level);
         if (level != null) {
@@ -25,9 +29,7 @@ public class WorldTag extends AbstractObjectTag implements ObjectReferenceTag<Le
     }
 
     public static WorldTag fromName(String name) {
-        WorldTag worldTag = new WorldTag(null);
-        worldTag.dimension = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(name));
-        return worldTag;
+        return new WorldTag(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(name)));
     }
 
     @Override
@@ -42,6 +44,7 @@ public class WorldTag extends AbstractObjectTag implements ObjectReferenceTag<Le
         return Optional.ofNullable(level);
     }
 
+    @GenerateTag
     public String name() {
         return dimension.location().toString();
     }
@@ -49,10 +52,5 @@ public class WorldTag extends AbstractObjectTag implements ObjectReferenceTag<Le
     @Override
     public String rawSimpleIdentity() {
         return name();
-    }
-
-    @Tag("name")
-    public ElementTag nameTag() {
-        return new ElementTag(name());
     }
 }

@@ -2,16 +2,23 @@ package com.morphanone.denizenmod.tags.factories;
 
 import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.ObjectType;
+import com.denizenscript.denizencore.objects.core.ElementTag;
 import com.denizenscript.denizencore.tags.Attribute;
 import com.denizenscript.denizencore.tags.ObjectTagProcessor;
 import com.denizenscript.denizencore.tags.TagContext;
+import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.morphanone.denizenmod.tags.TagInterfaceProxy;
-import com.morphanone.denizenmod.tags.Tag;
+import com.morphanone.denizenmod.tags.annotations.GenerateTag;
+import com.morphanone.denizenmod.tags.annotations.OptionalType;
+import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.utilities.Annotations;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public abstract class ObjectTagFactory<T extends ObjectTag> {
     public ObjectTagProcessor<T> tagProcessor = new ObjectTagProcessor<>();
@@ -34,18 +41,48 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
         return objectType.shortName;
     }
 
-    private <R extends ObjectTag> void register(String name, Class<R> returnType, Method method) {
+    public <R extends ObjectTag> void register(String[] names, Class<R> returnType, TagRunnable.ObjectInterface<T, R> runnable) {
+        for (String name : names) {
+            tagProcessor.registerTag(returnType, name, runnable);
+        }
+    }
+
+    public <R extends ObjectTag, P extends ObjectTag> void register(String[] names, Class<R> returnType, Class<P> paramType, TagRunnable.ObjectWithParamInterface<T, R, P> runnable) {
+        for (String name : names) {
+            tagProcessor.registerTag(returnType, paramType, name, runnable);
+        }
+    }
+
+    private <R extends ObjectTag> void register(String[] names, Class<R> returnType, Method method) {
         try {
-            tagProcessor.registerTag(returnType, name, TagInterfaceProxy.object(tagClass, method, returnType));
+            register(names, returnType, TagInterfaceProxy.object(tagClass, method, returnType));
         }
         catch (Throwable e) {
             Debug.echoError(e);
         }
     }
 
-    private <R extends ObjectTag, P extends ObjectTag> void registerWithParam(String name, Class<R> returnType, Class<P> paramType, Method method) {
+    private <R extends ObjectTag, P extends ObjectTag> void registerWithParam(String[] names, Class<R> returnType, Class<P> paramType, Method method) {
         try {
-            tagProcessor.registerTag(returnType, paramType, name, TagInterfaceProxy.objectWithParam(tagClass, method, returnType, paramType));
+            register(names, returnType, paramType, TagInterfaceProxy.objectWithParam(tagClass, method, returnType, paramType));
+        }
+        catch (Throwable e) {
+            Debug.echoError(e);
+        }
+    }
+
+    private <R extends ObjectTag> void registerOptional(String[] names, Class<R> returnType, Method method) {
+        try {
+            register(names, returnType, TagInterfaceProxy.optionalObject(tagClass, method, returnType));
+        }
+        catch (Throwable e) {
+            Debug.echoError(e);
+        }
+    }
+
+    private void registerGenerated(String[] names, Class<?> returnType, Method method) {
+        try {
+            register(names, ElementTag.class, TagInterfaceProxy.generateElement(tagClass, method, returnType));
         }
         catch (Throwable e) {
             Debug.echoError(e);
@@ -56,43 +93,95 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
         return false;
     }
 
-    public <P extends ObjectTag, R extends ObjectTag> void registerCustom(String name, Class<R> returnType, Class<P> extraParam, Method method) {
+    public <P extends ObjectTag, R extends ObjectTag> void registerCustom(String[] names, Class<R> returnType, Class<P> extraParam, Method method) {
+    }
+
+    public void registerTag(String[] names, Method method) {
+        boolean isCustom = isCustom(method);
+        Class<?> tempReturnType;
+        OptionalType optionalType = Annotations.find(method, OptionalType.class);
+        if (optionalType != null) {
+            tempReturnType = optionalType.value();
+            if (method.getParameterCount() > 0) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no parameters");
+                return;
+            }
+        }
+        else {
+            tempReturnType = method.getReturnType();
+            if (Optional.class.equals(tempReturnType)) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must be annotated with OptionalType to provide an Optional");
+                return;
+            }
+        }
+        if (!ObjectTag.class.isAssignableFrom(tempReturnType)) {
+            Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must return some ObjectTag");
+            return;
+        }
+        if (method.getParameterCount() > 1) {
+            Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no more than one parameter");
+            return;
+        }
+        Class<? extends ObjectTag> paramType = null;
+        if (method.getParameterCount() == 1) {
+            Class<?> tempParamType = method.getParameterTypes()[0];
+            if (!ObjectTag.class.isAssignableFrom(tempParamType)) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide a parameter of some ObjectTag");
+                return;
+            }
+            paramType = tempParamType.asSubclass(ObjectTag.class);
+        }
+        Class<? extends ObjectTag> returnType = tempReturnType.asSubclass(ObjectTag.class);
+        if (isCustom) {
+            registerCustom(names, returnType, paramType, method);
+        }
+        else if (paramType != null) {
+            registerWithParam(names, returnType, paramType, method);
+        }
+        else if (optionalType != null) {
+            registerOptional(names, returnType, method);
+        }
+        else {
+            register(names, returnType, method);
+        }
+    }
+
+    public void generateTag(String[] names, Method method) {
+        Class<?> returnType = method.getReturnType();
+        if (!TagInterfaceProxy.ELEMENT_CREATORS.containsKey(returnType)) {
+            Debug.echoError(method.getName() + " (generated tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must return a valid type");
+            return;
+        }
+        if (method.getParameterCount() > 0) {
+            Debug.echoError(method.getName() + " (generated tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no parameters");
+            return;
+        }
+        registerGenerated(names, returnType, method);
+    }
+
+    private static final Pattern CAMEL_CASE = Pattern.compile("([a-z])([A-Z])");
+
+    private static String[] fixNames(String[] names, Method method) {
+        if (names.length > 0) {
+            return names;
+        }
+        String name = method.getName();
+        if (name.endsWith("Tag") && name.length() != "Tag".length()) {
+            name = name.substring(0, name.length() - "Tag".length());
+        }
+        return new String[] { CoreUtilities.toLowerCase(CAMEL_CASE.matcher(name).replaceAll("$1_$2")) };
     }
 
     public void registerTags() {
         for (Method method : tagClass.getMethods()) {
             Tag tag = Annotations.find(method, Tag.class);
-            if (tag == null) {
+            if (tag != null) {
+                registerTag(fixNames(tag.value(), method), method);
                 continue;
             }
-            boolean isCustom = isCustom(method);
-            Class<?> tempReturnType = method.getReturnType();
-            if (!ObjectTag.class.isAssignableFrom(tempReturnType)) {
-                Debug.echoError(method.getName() + " (tag " + tag.value() + ") in " + tagClass.getName() + " must return some ObjectTag");
-                continue;
-            }
-            if (method.getParameterCount() > 1) {
-                Debug.echoError(method.getName() + " (tag " + tag.value() + ") in " + tagClass.getName() + " must provide no more than one parameter");
-                continue;
-            }
-            Class<? extends ObjectTag> paramType = null;
-            if (method.getParameterCount() == 1) {
-                Class<?> tempParamType = method.getParameterTypes()[0];
-                if (!ObjectTag.class.isAssignableFrom(tempParamType)) {
-                    Debug.echoError(method.getName() + " (tag " + tag.value() + ") in " + tagClass.getName() + " must provide a parameter of some ObjectTag");
-                    continue;
-                }
-                paramType = tempParamType.asSubclass(ObjectTag.class);
-            }
-            Class<? extends ObjectTag> returnType = tempReturnType.asSubclass(ObjectTag.class);
-            if (isCustom) {
-                registerCustom(tag.value(), returnType, paramType, method);
-            }
-            else if (paramType != null) {
-                registerWithParam(tag.value(), returnType, paramType, method);
-            }
-            else {
-                register(tag.value(), returnType, method);
+            GenerateTag generateTag = Annotations.find(method, GenerateTag.class);
+            if (generateTag != null) {
+                generateTag(fixNames(generateTag.value(), method), method);
             }
         }
     }

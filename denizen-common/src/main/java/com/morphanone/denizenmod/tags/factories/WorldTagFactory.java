@@ -1,11 +1,7 @@
 package com.morphanone.denizenmod.tags.factories;
 
 import com.denizenscript.denizencore.tags.TagContext;
-import com.morphanone.denizenmod.DenizenMod;
 import com.morphanone.denizenmod.objects.WorldTag;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 public class WorldTagFactory extends ObjectReferenceTagFactory<WorldTag, Level> {
@@ -28,13 +24,14 @@ public class WorldTagFactory extends ObjectReferenceTagFactory<WorldTag, Level> 
         return null;
     }
 
-    public Level fromIdentity(String input) {
-        return DenizenMod.instance.getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(input)));
+    public WorldTag fromIdentity(String input) {
+        WorldTag worldTag = WorldTag.fromName(input);
+        return worldTag.value().isPresent() ? worldTag : null;
     }
 
     @Override
     public WorldTag valueOf(String input, TagContext context) {
-        return of(fromIdentity(input));
+        return fromIdentity(input);
     }
 
     @Override
