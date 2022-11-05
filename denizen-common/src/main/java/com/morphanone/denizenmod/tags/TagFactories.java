@@ -10,7 +10,7 @@ import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.debugging.DebugInternals;
 import com.morphanone.denizenmod.objects.AbstractEntityTag;
-import com.morphanone.denizenmod.objects.EntityTag;
+import com.morphanone.denizenmod.objects.EntityTagImpl;
 import com.morphanone.denizenmod.objects.LocationTag;
 import com.morphanone.denizenmod.objects.PlayerTag;
 import com.morphanone.denizenmod.objects.WorldTag;
@@ -36,7 +36,7 @@ public class TagFactories {
 
     public static ObjectReferenceTagMetafactory<AbstractEntityTag, Entity> ENTITY_ANY = registerMetafactory(new ObjectReferenceTagMetafactory<>(AbstractEntityTag.class, Entity.class));
 
-    public static ObjectReferenceTagFactory<EntityTag, Entity> ENTITY = registerTagFactory(new EntityTagFactory.Entity());
+    public static ObjectReferenceTagFactory<EntityTagImpl, Entity> ENTITY = registerTagFactory(new EntityTagFactory.EntityImpl());
 
     public static ObjectReferenceTagFactory<PlayerTag, Player> PLAYER = registerTagFactory(new PlayerTagFactory());
 

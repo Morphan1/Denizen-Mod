@@ -5,7 +5,7 @@ import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.morphanone.denizenmod.objects.AbstractEntityTag;
-import com.morphanone.denizenmod.objects.EntityTag;
+import com.morphanone.denizenmod.objects.EntityTagImpl;
 import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
@@ -56,19 +56,19 @@ public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends En
 
     public abstract T from(UUID uuid);
 
-    public static class Entity extends EntityTagFactory<EntityTag, net.minecraft.world.entity.Entity> {
-        public Entity() {
-            super(EntityTag.class, net.minecraft.world.entity.Entity.class);
+    public static class EntityImpl extends EntityTagFactory<EntityTagImpl, Entity> {
+        public EntityImpl() {
+            super(EntityTagImpl.class, Entity.class);
         }
 
         @Override
-        public EntityTag from(UUID uuid) {
-            return new EntityTag(uuid);
+        public EntityTagImpl from(UUID uuid) {
+            return new EntityTagImpl(uuid);
         }
 
         @Override
-        public EntityTag of(net.minecraft.world.entity.Entity entity) {
-            return entity != null ? new EntityTag(entity) : null;
+        public EntityTagImpl of(Entity entity) {
+            return entity != null ? new EntityTagImpl(entity) : null;
         }
 
         @Override

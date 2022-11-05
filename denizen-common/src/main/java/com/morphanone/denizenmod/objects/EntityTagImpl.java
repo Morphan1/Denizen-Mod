@@ -6,14 +6,14 @@ import net.minecraft.world.entity.Entity;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EntityTag extends AbstractEntityTag {
+public class EntityTagImpl extends AbstractEntityTag {
     public Entity entity;
 
-    public EntityTag(UUID uuid) {
+    public EntityTagImpl(UUID uuid) {
         super(uuid);
     }
 
-    public EntityTag(Entity entity) {
+    public EntityTagImpl(Entity entity) {
         this(entity.getUUID());
         this.entity = entity;
     }
