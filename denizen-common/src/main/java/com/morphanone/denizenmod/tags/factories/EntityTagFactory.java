@@ -4,13 +4,13 @@ import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagRunnable;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
-import com.morphanone.denizenmod.objects.AbstractEntityTag;
+import com.morphanone.denizenmod.objects.EntityTag;
 import com.morphanone.denizenmod.objects.EntityTagImpl;
 import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
 
-public abstract class EntityTagFactory<T extends AbstractEntityTag, E extends Entity> extends ObjectReferenceTagFactory<T, E> {
+public abstract class EntityTagFactory<T extends EntityTag, E extends Entity> extends ObjectReferenceTagFactory<T, E> {
     public EntityTagFactory(Class<T> tagClass, Class<E> entityClass) {
         super(tagClass, entityClass);
     }

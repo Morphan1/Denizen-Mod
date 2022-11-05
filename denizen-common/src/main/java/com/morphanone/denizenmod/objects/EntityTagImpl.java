@@ -6,7 +6,7 @@ import net.minecraft.world.entity.Entity;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EntityTagImpl extends AbstractEntityTag {
+public class EntityTagImpl extends EntityTag {
     public Entity entity;
 
     public EntityTagImpl(UUID uuid) {

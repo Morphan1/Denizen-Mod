@@ -16,10 +16,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class AbstractEntityTag extends AbstractObjectTag implements ObjectReferenceTag<Entity> {
+public abstract class EntityTag extends AbstractObjectTag implements ObjectReferenceTag<Entity> {
     public UUID uuid;
 
-    public AbstractEntityTag(UUID uuid) {
+    public EntityTag(UUID uuid) {
         this.uuid = uuid;
     }
 
@@ -65,7 +65,7 @@ public abstract class AbstractEntityTag extends AbstractObjectTag implements Obj
      * {@return the entity's current attack target, if the entity is a hostile mob}
      */
     @Tag
-    public AbstractEntityTag targetTag() {
+    public EntityTag targetTag() {
         return value().map((entity) -> entity instanceof Mob mob ? TagFactories.ENTITY_ANY.of(mob) : null).orElse(null);
     }
 

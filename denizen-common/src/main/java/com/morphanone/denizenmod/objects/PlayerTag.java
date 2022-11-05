@@ -12,7 +12,7 @@ import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerTag extends AbstractEntityTag {
+public class PlayerTag extends EntityTag {
     public Reference<Player> player;
 
     public PlayerTag(UUID uuid) {
@@ -45,7 +45,7 @@ public class PlayerTag extends AbstractEntityTag {
      * {@return the entity the player is currently looking at}
      */
     @Override
-    public AbstractEntityTag targetTag() {
+    public EntityTag targetTag() {
         return value().map((player) ->
                 RayTrace.any(player.level, player.getEyePosition(), player.getLookAngle(), 50.0, 0.0, true, ClipContext.Fluid.NONE, null).entity
         ).map(TagFactories.ENTITY_ANY::of).orElse(null);
