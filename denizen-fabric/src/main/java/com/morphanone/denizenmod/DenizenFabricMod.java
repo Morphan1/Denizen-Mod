@@ -22,11 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
@@ -52,13 +47,7 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
 
     public ModContainer container;
 
-    public Path configDir;
-
-    public Path scriptsDir;
-
-    public Path dataDir;
-
-    public Path configFile;
+    public DenizenFabricConfig config;
 
     public DenizenFabricMod() {
         instance = this;
@@ -67,15 +56,7 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
     @Override
     public void onInitialize() {
         container = FabricLoader.getInstance().getModContainer(DenizenMod.MOD_ID).orElseThrow(() -> new IllegalStateException("Failed to find Denizen mod"));
-        try {
-            configDir = Files.createDirectories(FabricLoader.getInstance().getConfigDir().resolve(DenizenMod.MOD_ID));
-            scriptsDir = Files.createDirectories(configDir.resolve("scripts"));
-            dataDir = Files.createDirectories(configDir.resolve("data"));
-        }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        configFile = configDir.resolve("config.yml");
+        config = new DenizenFabricConfig();
         DenizenMod.initCore(this);
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             ExCommand.register(dispatcher);
@@ -91,6 +72,11 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
 
     public static CommandSource getDebugTarget() {
         return SERVER;
+    }
+
+    @Override
+    public YamlConfiguration loadConfig() {
+        return config.loadConfig();
     }
 
     @Override
@@ -122,38 +108,15 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
         return SERVER;
     }
 
-    private void saveDefaultConfig() {
-        if (Files.exists(configFile)) {
-            return;
-        }
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("default_config.yml")) {
-            Files.copy(Objects.requireNonNull(input), configFile);
-        }
-        catch (IOException e) {
-            Debug.echoError(e);
-        }
-    }
-
-    public YamlConfiguration loadConfig() {
-        saveDefaultConfig();
-        try (InputStream input = Files.newInputStream(configFile)) {
-            return YamlConfiguration.load(input);
-        }
-        catch (IOException e) {
-            Debug.echoError(e);
-        }
-        return null;
-    }
-
     //region Core Implementation
     @Override
     public File getScriptFolder() {
-        return scriptsDir.toFile();
+        return config.scriptsDir.toFile();
     }
 
     @Override
     public File getDataFolder() {
-        return dataDir.toFile();
+        return config.dataDir.toFile();
     }
 
     @Override
