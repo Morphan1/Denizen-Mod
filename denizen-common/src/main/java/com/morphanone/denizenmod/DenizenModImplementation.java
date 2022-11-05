@@ -1,11 +1,14 @@
 package com.morphanone.denizenmod;
 
 import com.denizenscript.denizencore.DenizenImplementation;
+import com.denizenscript.denizencore.flags.FlaggableObject;
 import com.denizenscript.denizencore.objects.Argument;
+import com.denizenscript.denizencore.objects.ObjectTag;
 import com.denizenscript.denizencore.objects.core.ScriptTag;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.ScriptEntryData;
 import com.denizenscript.denizencore.scripts.containers.ScriptContainer;
+import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
 import com.denizenscript.denizencore.tags.TagContext;
 import com.denizenscript.denizencore.tags.TagManager;
 import com.denizenscript.denizencore.utilities.CoreUtilities;
@@ -23,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -158,6 +162,55 @@ public interface DenizenModImplementation extends DenizenImplementation {
     @Override
     default String stripColor(String message) {
         return AnsiChatFormatting.stripFormatting(message);
+    }
+
+    @Override
+    default void preScriptReload() {
+    }
+
+    @Override
+    default void onScriptReload() {
+    }
+
+    @Override
+    default void refreshScriptContainers() {
+    }
+
+    @Override
+    default void preTagExecute() {
+    }
+
+    @Override
+    default void postTagExecute() {
+    }
+
+    @Override
+    default boolean canWriteToFile(File file) {
+        return false;
+    }
+
+    @Override
+    default boolean canReadFile(File file) {
+        return false;
+    }
+
+    @Override
+    default void addExtraErrorHeaders(StringBuilder headerBuilder, ScriptEntry source) {
+    }
+
+    @Override
+    default FlaggableObject simpleWordToFlaggable(String word, ScriptEntry entry) {
+        return null;
+    }
+
+    @Override
+    default ObjectTag getSpecialDef(String def, ScriptQueue queue) {
+        return null;
+    }
+
+    @Override
+    default boolean setSpecialDef(String def, ScriptQueue queue, ObjectTag value) {
+        return false;
     }
     //endregion
 }

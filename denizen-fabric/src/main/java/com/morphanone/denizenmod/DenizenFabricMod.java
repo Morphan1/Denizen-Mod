@@ -1,11 +1,6 @@
 package com.morphanone.denizenmod;
 
 import com.denizenscript.denizencore.DenizenCore;
-import com.denizenscript.denizencore.flags.FlaggableObject;
-import com.denizenscript.denizencore.objects.ObjectTag;
-import com.denizenscript.denizencore.scripts.ScriptEntry;
-import com.denizenscript.denizencore.scripts.queues.ScriptQueue;
-import com.denizenscript.denizencore.utilities.ExCommandHelper;
 import com.denizenscript.denizencore.utilities.YamlConfiguration;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.morphanone.denizenmod.minecraft.commands.ExCommand;
@@ -37,29 +32,20 @@ import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 public class DenizenFabricMod implements ModInitializer, DenizenModImplementation {
-    public static final String MOD_ID = "denizen";
-
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Logger LOGGER = LoggerFactory.getLogger(DenizenMod.MOD_ID);
 
     public static MinecraftServer SERVER;
 
     static {
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             SERVER = server;
-            ExCommandHelper.sustainedQueues.clear();
-            DenizenCore.scheduled.clear();
-            DenizenCore.MAIN_THREAD = Thread.currentThread();
-            Debug.log("Server started! Loading saved data and allowing commands...");
-            DenizenCore.reloadSaves();
+            DenizenMod.onServerStart();
         });
         ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
-            Debug.log("Server stopping! Saving data and disabling commands...");
-            DenizenCore.shutdown();
-            DenizenCore.MAIN_THREAD = null;
-            ExCommandHelper.sustainedQueues.clear();
-            DenizenCore.scheduled.clear();
+            DenizenMod.onServerShutdown();
             SERVER = null;
         });
+        ServerTickEvents.START_SERVER_TICK.register((server) -> DenizenCore.tick(50));
     }
 
     public static DenizenFabricMod instance;
@@ -80,9 +66,9 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
 
     @Override
     public void onInitialize() {
-        container = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow(() -> new IllegalStateException("Failed to find Denizen mod"));
+        container = FabricLoader.getInstance().getModContainer(DenizenMod.MOD_ID).orElseThrow(() -> new IllegalStateException("Failed to find Denizen mod"));
         try {
-            configDir = Files.createDirectories(FabricLoader.getInstance().getConfigDir().resolve(MOD_ID));
+            configDir = Files.createDirectories(FabricLoader.getInstance().getConfigDir().resolve(DenizenMod.MOD_ID));
             scriptsDir = Files.createDirectories(configDir.resolve("scripts"));
             dataDir = Files.createDirectories(configDir.resolve("data"));
         }
@@ -90,18 +76,17 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
             throw new UncheckedIOException(e);
         }
         configFile = configDir.resolve("config.yml");
-        DenizenMod.init(this);
+        DenizenMod.initCore(this);
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
             ExCommand.register(dispatcher);
             ExsCommand.register(dispatcher);
         }));
-        ServerTickEvents.START_SERVER_TICK.register((server) -> DenizenCore.tick(50));
         Debug.log("Waiting for server to start...");
         DenizenCore.MAIN_THREAD = null;
     }
 
     public static ResourceLocation resource(String id) {
-        return new ResourceLocation(MOD_ID, id);
+        return new ResourceLocation(DenizenMod.MOD_ID, id);
     }
 
     public static CommandSource getDebugTarget() {
@@ -179,55 +164,6 @@ public class DenizenFabricMod implements ModInitializer, DenizenModImplementatio
     @Override
     public String getImplementationName() {
         return "Fabric";
-    }
-
-    @Override
-    public void preScriptReload() {
-    }
-
-    @Override
-    public void onScriptReload() {
-    }
-
-    @Override
-    public void refreshScriptContainers() {
-    }
-
-    @Override
-    public void preTagExecute() {
-    }
-
-    @Override
-    public void postTagExecute() {
-    }
-
-    @Override
-    public boolean canWriteToFile(File file) {
-        return false;
-    }
-
-    @Override
-    public boolean canReadFile(File file) {
-        return false;
-    }
-
-    @Override
-    public void addExtraErrorHeaders(StringBuilder headerBuilder, ScriptEntry source) {
-    }
-
-    @Override
-    public FlaggableObject simpleWordToFlaggable(String word, ScriptEntry entry) {
-        return null;
-    }
-
-    @Override
-    public ObjectTag getSpecialDef(String def, ScriptQueue queue) {
-        return null;
-    }
-
-    @Override
-    public boolean setSpecialDef(String def, ScriptQueue queue, ObjectTag value) {
-        return false;
     }
 
     @Override
