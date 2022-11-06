@@ -46,7 +46,7 @@ public class ExCommand {
                     tagContext.player.value().ifPresent((player) -> {
                         player.sendSystemMessage(
                                 // TODO: gotta be a better way to handle text...
-                                Component.literal(DenizenMod.instance.cleanseLogString(message).replace("<FORCE_ALIGN>", ""))
+                                Component.literal(DenizenMod.coreBridge.cleanseLogString(message).replace("<FORCE_ALIGN>", ""))
                         );
                     });
                 };

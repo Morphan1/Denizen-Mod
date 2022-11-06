@@ -1,8 +1,9 @@
-package com.morphanone.denizenmod;
+package com.morphanone.denizenmod.config;
 
+import com.denizenscript.denizencore.utilities.CoreUtilities;
 import com.denizenscript.denizencore.utilities.YamlConfiguration;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
-import net.fabricmc.loader.api.FabricLoader;
+import com.morphanone.denizenmod.DenizenMod;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class DenizenFabricConfig {
+public class YamlDenizenModConfig implements DenizenModConfig {
     public Path configDir;
 
     public Path configFile;
@@ -20,9 +21,11 @@ public class DenizenFabricConfig {
 
     public Path dataDir;
 
-    public DenizenFabricConfig() {
+    private YamlConfiguration config;
+
+    public YamlDenizenModConfig() {
         try {
-            this.configDir = Files.createDirectories(FabricLoader.getInstance().getConfigDir().resolve(DenizenMod.MOD_ID));
+            this.configDir = Files.createDirectories(DenizenMod.instance.getConfigDirectory());
             this.scriptsDir = Files.createDirectories(configDir.resolve("scripts"));
             this.dataDir = Files.createDirectories(configDir.resolve("data"));
         }
@@ -44,14 +47,19 @@ public class DenizenFabricConfig {
         }
     }
 
-    public YamlConfiguration loadConfig() {
+    public void loadConfig() {
         saveDefaultConfig();
-        try (InputStream input = Files.newInputStream(configFile)) {
-            return YamlConfiguration.load(input);
+        try {
+            try (InputStream input = Files.newInputStream(configFile)) {
+                this.config = YamlConfiguration.load(input);
+            }
         }
         catch (IOException e) {
             Debug.echoError(e);
         }
-        return null;
+    }
+
+    public boolean getBoolean(String path, boolean def) {
+        return CoreUtilities.toLowerCase(config.getString(path, def ? "true" : "false")).equals("true");
     }
 }

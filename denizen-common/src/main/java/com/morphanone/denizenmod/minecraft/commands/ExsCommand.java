@@ -44,7 +44,7 @@ public class ExsCommand {
             if (tagContext.player != null) {
                 queue.debugOutput = (message) -> tagContext.player.sendSystemMessage(
                         // TODO: gotta be a better way to handle text...
-                        DenizenMod.instance.cleanseLogString(message).replace("<FORCE_ALIGN>", "")
+                        DenizenMod.coreBridge.cleanseLogString(message).replace("<FORCE_ALIGN>", "")
                 );
             }
         });

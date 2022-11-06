@@ -19,6 +19,9 @@
   "entrypoints": {
     "main": [
       "com.morphanone.denizenmod.DenizenFabricMod"
+    ],
+    "client": [
+      "com.morphanone.denizenmod.DenizenFabricClientMod"
     ]
   },
   "mixins": [
