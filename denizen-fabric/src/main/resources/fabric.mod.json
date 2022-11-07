@@ -9,7 +9,7 @@
     "Morphan1"
   ],
   "contact": {
-    "homepage": "https://morphanone.com/denizenmod",
+    "homepage": "https://github.com/Morphan1/Denizen-Mod",
     "sources": "https://github.com/Morphan1/Denizen-Mod"
   },
 
@@ -25,7 +25,7 @@
     ]
   },
   "mixins": [
-    "denizen.mixins.json"
+    "denizen-fabric.mixins.json"
   ],
 
   "depends": {

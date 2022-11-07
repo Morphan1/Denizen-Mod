@@ -93,8 +93,9 @@ public abstract class EntityTag extends AbstractObjectTag implements ObjectRefer
         )).orElse(null);
     }
 
+    // TODO: allow MapTag input
     /**
-     * {@return the block the entity is looking at, }
+     * {@return the block the entity is looking at, up to 50 blocks away}
      */
     @Tag
     public LocationTag cursorOnTag() {

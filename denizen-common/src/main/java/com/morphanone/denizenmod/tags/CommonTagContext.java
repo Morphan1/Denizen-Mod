@@ -10,6 +10,7 @@ import com.morphanone.denizenmod.scripts.CommonScriptEntryData;
 
 import java.util.function.Function;
 
+// TODO: builder?
 public class CommonTagContext extends TagContext {
     public PlayerTag player;
 
