@@ -103,7 +103,6 @@ public final class DenizenMod {
         private static final String DENIZEN_MOD_PATH = toClassPath(DenizenMod.class.getName());
 
         private void addValidPath(String path) {
-            System.out.println("ADDING PATH: " + path);
             String fullPath = Objects.requireNonNull(parent.getResource(path)).toString();
             validPaths.add(fullPath.substring(0, fullPath.length() - path.length()));
         }
