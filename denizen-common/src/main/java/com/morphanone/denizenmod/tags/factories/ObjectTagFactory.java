@@ -16,6 +16,7 @@ import com.morphanone.denizenmod.tags.annotations.Tag;
 import com.morphanone.denizenmod.utilities.Annotations;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -98,12 +99,20 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
 
     public void registerTag(String[] names, Method method) {
         boolean isCustom = isCustom(method);
+        int paramCount = method.getParameterCount();
+        if (Modifier.isStatic(method.getModifiers())) {
+            if (paramCount < 1 || !tagClass.isAssignableFrom(method.getParameterTypes()[0])) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide a parameter of type " + tagClass.getName());
+                return;
+            }
+            paramCount--;
+        }
         Class<?> tempReturnType;
         OptionalType optionalType = Annotations.find(method, OptionalType.class);
         if (optionalType != null) {
             tempReturnType = optionalType.value();
-            if (method.getParameterCount() > 0) {
-                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no parameters");
+            if (paramCount > 0) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no input parameters");
                 return;
             }
         }
@@ -118,15 +127,15 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
             Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must return some ObjectTag");
             return;
         }
-        if (method.getParameterCount() > 1) {
-            Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no more than one parameter");
+        if (paramCount > 1) {
+            Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no more than one input parameter");
             return;
         }
         Class<? extends ObjectTag> paramType = null;
-        if (method.getParameterCount() == 1) {
+        if (paramCount == 1) {
             Class<?> tempParamType = method.getParameterTypes()[0];
             if (!ObjectTag.class.isAssignableFrom(tempParamType)) {
-                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide a parameter of some ObjectTag");
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide an input parameter of some ObjectTag");
                 return;
             }
             paramType = tempParamType.asSubclass(ObjectTag.class);
@@ -147,13 +156,21 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
     }
 
     public void generateTag(String[] names, Method method) {
+        int paramCount = method.getParameterCount();
+        if (Modifier.isStatic(method.getModifiers())) {
+            if (paramCount < 1 || !tagClass.isAssignableFrom(method.getParameterTypes()[0])) {
+                Debug.echoError(method.getName() + " (tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide a parameter of type " + tagClass.getName());
+                return;
+            }
+            paramCount--;
+        }
         Class<?> returnType = method.getReturnType();
         if (!TagInterfaceProxy.ELEMENT_CREATORS.containsKey(returnType)) {
             Debug.echoError(method.getName() + " (generated tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must return a valid type");
             return;
         }
-        if (method.getParameterCount() > 0) {
-            Debug.echoError(method.getName() + " (generated tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no parameters");
+        if (paramCount > 0) {
+            Debug.echoError(method.getName() + " (generated tag " + Arrays.toString(names) + ") in " + method.getDeclaringClass().getName() + " must provide no input parameters");
             return;
         }
         registerGenerated(names, returnType, method);
@@ -172,18 +189,22 @@ public abstract class ObjectTagFactory<T extends ObjectTag> {
         return new String[] { CoreUtilities.toLowerCase(CAMEL_CASE.matcher(name).replaceAll("$1_$2")) };
     }
 
-    public void registerTags() {
-        for (Method method : tagClass.getMethods()) {
+    public static void registerTags(ObjectTagFactory<?> factory, Method[] methods) {
+        for (Method method : methods) {
             Tag tag = Annotations.find(method, Tag.class);
             if (tag != null) {
-                registerTag(fixNames(tag.value(), method), method);
+                factory.registerTag(fixNames(tag.value(), method), method);
                 continue;
             }
             GenerateTag generateTag = Annotations.find(method, GenerateTag.class);
             if (generateTag != null) {
-                generateTag(fixNames(generateTag.value(), method), method);
+                factory.generateTag(fixNames(generateTag.value(), method), method);
             }
         }
+    }
+
+    public void registerTags() {
+        registerTags(this, tagClass.getMethods());
     }
 
     public abstract T getDefault(TagContext context);

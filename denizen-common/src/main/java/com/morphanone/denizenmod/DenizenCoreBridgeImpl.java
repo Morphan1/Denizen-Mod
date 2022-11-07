@@ -25,6 +25,7 @@ import com.morphanone.denizenmod.minecraft.commands.ExsCommand;
 import com.morphanone.denizenmod.scripts.CommonScriptEntryData;
 import com.morphanone.denizenmod.tags.CommonTagContext;
 import com.morphanone.denizenmod.tags.TagFactories;
+import com.morphanone.denizenmod.tags.factories.ObjectTagFactory;
 import com.morphanone.denizenmod.utilities.AnsiChatFormatting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -50,11 +51,6 @@ public class DenizenCoreBridgeImpl implements DenizenCoreBridge, DenizenImplemen
     @Override
     public void setMainThread(Thread thread) {
         DenizenCore.MAIN_THREAD = thread;
-    }
-
-    @Override
-    public Thread getMainThread() {
-        return DenizenCore.MAIN_THREAD;
     }
 
     @Override
@@ -127,6 +123,26 @@ public class DenizenCoreBridgeImpl implements DenizenCoreBridge, DenizenImplemen
         shutdown();
         setMainThread(null);
         clearQueued();
+    }
+
+    @Override
+    public void registerTagExtension(String objectTag, String extension) {
+        try {
+            ObjectTagFactory.registerTags(TagFactories.BY_OBJECT_TYPE.get(Class.forName(objectTag)), Class.forName(extension).getMethods());
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void registerTagFactory(String factory) {
+        try {
+            TagFactories.registerTagFactory((ObjectTagFactory<?>) Class.forName(factory).getDeclaredConstructor().newInstance());
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static final Map<String, Supplier<?>> REGISTRY_LOADERS = Map.of(

@@ -12,8 +12,6 @@ public interface DenizenCoreBridge {
 
     void setMainThread(Thread thread);
 
-    Thread getMainThread();
-
     void init(DenizenModImplementation implementation);
 
     DenizenModConfig config();
@@ -33,6 +31,10 @@ public interface DenizenCoreBridge {
     void onServerStart();
 
     void onServerShutdown();
+
+    void registerTagExtension(String objectTag, String extension);
+
+    void registerTagFactory(String factory);
 
     String cleanseLogString(String str);
 }

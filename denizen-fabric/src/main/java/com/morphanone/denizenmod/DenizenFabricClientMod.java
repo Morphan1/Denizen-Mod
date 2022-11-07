@@ -16,12 +16,6 @@ import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 public class DenizenFabricClientMod extends DenizenFabricBase implements ClientModInitializer {
-    public static DenizenFabricClientMod instance;
-
-    public DenizenFabricClientMod() {
-        instance = this;
-    }
-
     @Override
     public void onInitializeClient() {
         super.onInitialize();
