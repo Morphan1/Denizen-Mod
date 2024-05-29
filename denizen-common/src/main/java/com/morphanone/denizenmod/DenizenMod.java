@@ -1,9 +1,12 @@
 package com.morphanone.denizenmod;
 
 import com.morphanone.denizenmod.config.DenizenModConfig;
+import com.morphanone.denizenmod.utilities.java.ClassReadException;
+import com.morphanone.denizenmod.utilities.java.PartialJavaClass;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -66,7 +69,7 @@ public final class DenizenMod {
                 Class.forName(DenizenModImplementation.class.getName(), true, this);
             }
             catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Required API class could not be found", e);
             }
         }
 
@@ -147,12 +150,17 @@ public final class DenizenMod {
                 if (is == null) {
                     return parent.loadClass(name);
                 }
-                byte[] bytes = is.readAllBytes();
-                return defineClass(name, bytes, 0, bytes.length);
+                try (DataInputStream dataStream = new DataInputStream(is)) {
+                    PartialJavaClass partialClass = new PartialJavaClass(dataStream);
+                    byte[] bytes = partialClass.getAllBytes();
+                    return defineClass(name, bytes, 0, bytes.length);
+                }
+                catch (ClassReadException e) {
+                    throw new ClassNotFoundException("Failed to read class references for class " + name, e);
+                }
             }
             catch (ClassFormatError | IOException e) {
-                e.printStackTrace();
-                throw new ClassNotFoundException();
+                throw new ClassNotFoundException("Failed to load class " + name, e);
             }
         }
     }
@@ -168,7 +176,7 @@ public final class DenizenMod {
             return (DenizenCoreBridge) bridgeImpl.getDeclaredConstructor().newInstance();
         }
         catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to establish core bridge", e);
         }
     }
 
